@@ -4,6 +4,8 @@ import Chip from "@material-ui/core/Chip";
 import Typography from "@material-ui/core/Typography";
 import Grid from "@material-ui/core/Grid";
 import Box from "@material-ui/core/Box";
+import Checkbox from "@material-ui/core/Checkbox";
+import TextField from "@material-ui/core/TextField";
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -19,43 +21,75 @@ const useStyles = makeStyles(theme => ({
 
 export default function ChipsArray() {
   const classes = useStyles();
-  const [chipData, setChipData] = React.useState([
-    { key: 0, label: "id" },
-    { key: 1, label: "ip" },
-    { key: 2, label: "centerId" },
-    { key: 3, label: "userId" },
-    { key: 4, label: "other" }
-  ]);
+  const [chipData, setChipData] = React.useState([]);
+  const [newClaim, setNewClaim] = React.useState("");
 
-  const handleDelete = chipToDelete => () => {
-    setChipData(chips => chips.filter(chip => chip.key !== chipToDelete.key));
+  const [state, setState] = React.useState({
+    checkedA: true,
+    checkedB: true,
+    checkedF: true
+  });
+
+  function handleAdd(event) {
+    setChipData([{ label: event.target.value }, ...chipData]);
+  }
+
+  function handleDelete(chipToDelete) {
+    setChipData(chips =>
+      chips.filter(chip => chip.label !== chipToDelete.label)
+    );
+  }
+
+  const handleChange = name => event => {
+    setState({ ...state, [name]: event.target.checked });
   };
+
+  function onKeyPress(event) {
+    if (event.key === "Enter") {
+      handleAdd(event);
+      setNewClaim("");
+    }
+  }
 
   return (
     <Box mb={2}>
-      <Typography variant="h6" gutterBottom>
-        Select Claims to be suggested
+      <Typography variant="subtitle2" gutterBottom>
+        Add Claims to be suggested
       </Typography>
+      <TextField
+        id="new-claim"
+        value={newClaim}
+        placeholder="Add new claim"
+        className={classes.textField}
+        onKeyPress={onKeyPress}
+        onChange={event => setNewClaim(event.target.value)}
+        margin="normal"
+      />
 
-      <Grid container spacing={3}>
-        <Grid item xs={4}>
-          <Chip color="primary" onDelete={handleDelete} label="id" />
-        </Grid>
-        <Grid item xs={4}>
-          <Chip color="primary" onDelete={handleDelete} label="ip" />
-        </Grid>
-        <Grid item xs={4}>
-          <Chip color="primary" onDelete={handleDelete} label="centerId" />
-        </Grid>
-        <Grid item xs={4}>
-          <Chip color="primary" onDelete={handleDelete} label="Function" />
-        </Grid>
-        <Grid item xs={4}>
-          <Chip color="primary" onDelete={handleDelete} label="userId" />
-        </Grid>
-        <Grid item xs={4}>
-          <Chip color="primary" onDelete={handleDelete} label="jwt" />
-        </Grid>
+      <Grid container spacing={1}>
+        {chipData.map(data => {
+          return (
+            <Grid item xs={4}>
+              <Chip
+                key={data.key}
+                variant="outlined"
+                color="primary"
+                onDelete={() => handleDelete(data)}
+                className={classes.chip}
+                icon={
+                  <Checkbox
+                    onChange={handleChange("checkedB")}
+                    color="primary"
+                    inputProps={{
+                      "aria-label": "secondary checkbox"
+                    }}
+                  />
+                }
+                label={data.label}
+              />
+            </Grid>
+          );
+        })}
       </Grid>
     </Box>
   );
